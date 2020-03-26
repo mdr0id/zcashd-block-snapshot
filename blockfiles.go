@@ -23,10 +23,12 @@ func gzipDefaultBlocks(height int, dataDir string, exportDir string) error {
 	defer tw.Close()
 	// grab the paths that need to be added in
 	paths := []string{
-		dataDir + "/blocks",
-		dataDir + "/chainstate",
+		"./blocks",
+		"./chainstate",
 	}
-
+	if err := os.Chdir(dataDir); err != nil {
+		return err
+	}
 	// add each file as needed into the current tar archive
 	for i := range paths {
 		filepath.Walk(paths[i], func(file string, fileInfo os.FileInfo, err error) error {
