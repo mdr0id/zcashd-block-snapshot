@@ -10,8 +10,8 @@ import (
 	"strconv"
 )
 
-func gzipDefaultBlocks(height int) error {
-	file, err := os.Create("zcashd-" + strconv.Itoa(height) + ".tar.gz")
+func gzipDefaultBlocks(height int, dataDir string, exportDir string) error {
+	file, err := os.Create(exportDir + "/zcashd-" + strconv.Itoa(height) + ".tar.gz")
 	if err != nil {
 		return err
 	}
@@ -23,8 +23,8 @@ func gzipDefaultBlocks(height int) error {
 	defer tw.Close()
 	// grab the paths that need to be added in
 	paths := []string{
-		"./blocks",
-		"./chainstate",
+		dataDir + "/blocks",
+		dataDir + "/chainstate",
 	}
 
 	// add each file as needed into the current tar archive

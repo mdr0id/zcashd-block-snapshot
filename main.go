@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -16,18 +17,30 @@ import (
 
 var stopHeight int
 
+func printUsage() {
+	log.Fatalf("Usage: %s HEIGHT ", os.Args[0])
+}
+
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatalf("Usage: %s HEIGHT", os.Args[0])
+	stopHeight := flag.Int("stop-height", 0, "What block height to stop at")
+	exportDir := flag.String("export-dir", "./", "Where to write collected blocks")
+	dataDir := flag.String("data-dir", "/srv/zcashd/.zcash", "Location of zcashd data files")
+	flag.Parse()
+	if *stopHeight == 0 {
+		flag.PrintDefaults()
+		log.Fatal("-stop-height but be a positive integer")
+	}
+	fmt.Printf("stopHeight: %d, dataDir: %s, exportDir: %s\n", *stopHeight, *dataDir, *exportDir)
+	if err := testWriteToOutput(exportDir); err != nil {
+		log.Fatalf("Exiting, can't write to output dir: %s, %s", *exportDir, err)
 	}
 
 	var err error
-	stopHeight, err = strconv.Atoi(os.Args[1])
 	if err != nil {
 		fmt.Println("HEIGHT must be an integer")
 		log.Fatalf("Usage: %s HEIGHT", os.Args[0])
 	}
-	fmt.Printf("Starting zcashd tp height: %d\n", stopHeight)
+	fmt.Printf("Starting zcashd, stopping at height: %d\n", *stopHeight)
 	cmdOptions := cmd.Options{
 		Buffered:  false,
 		Streaming: true,
@@ -58,22 +71,22 @@ func main() {
 				if height == nil {
 					continue
 				}
-				if *height > stopHeight {
-					fmt.Printf("Somehow we passed the start height, stopping. At: %d, Want: %d\n", *height, stopHeight)
+				if *height > *stopHeight {
+					fmt.Printf("Somehow we passed the start height, stopping. At: %d, Want: %d\n", *height, *stopHeight)
 					zcashdCmd.Stop()
 					return
 				}
-				if *height == stopHeight {
+				if *height == *stopHeight {
 					fmt.Println("================== REACHED END HEIGHT ==================")
 					zcashdCmd.Stop()
 					fmt.Println("================== ZIPPING BLOCKS ==================")
-					if err := gzipDefaultBlocks(stopHeight); err != nil {
+					if err := gzipDefaultBlocks(*stopHeight, *dataDir, *exportDir); err != nil {
 						log.Fatal(err)
 					}
 					return
 				}
-				if *height < stopHeight {
-					fmt.Printf("Updated height: %d, stopping at: %d\n", *height, stopHeight)
+				if *height < *stopHeight {
+					fmt.Printf("Updated height: %d, stopping at: %d\n", *height, *stopHeight)
 					continue
 				}
 			case line, open := <-zcashdCmd.Stderr:
@@ -123,4 +136,21 @@ func reachedHeight(line string) (*int, error) {
 	}
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05.000000"), " -- ", line)
 	return nil, nil
+}
+
+func testWriteToOutput(outputDir *string) error {
+	info, err := os.Stat(*outputDir)
+	if err != nil {
+		return err
+	}
+	if !info.IsDir() {
+		return errors.New("outputDir isn't a directory")
+	}
+	name := *outputDir + "/test-file"
+	tFile, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tFile.Name())
+	return nil
 }
