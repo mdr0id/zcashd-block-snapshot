@@ -54,18 +54,18 @@ zcashd@3ac0a0efacd2:~$ cd .zcash
 
 Fetch the prebuilt binary
 ```
-zcashd@3ac0a0efacd2:~/.zcash$ curl -LO https://github.com/doubtingben/zcashd-block-snapshot/releases/download/v0.0.2/zcashd-block-snapshot-v0.0.2
+zcashd@3ac0a0efacd2:~/.zcash$ curl -LO https://github.com/doubtingben/zcashd-block-snapshot/releases/download/v0.0.3/zcashd-block-snapshot-v0.0.3
 ```
 
 Make it executable
 ```
-zcashd@3ac0a0efacd2:~/.zcash$ chmod +x zcashd-block-snapshot-v0.0.2
+zcashd@3ac0a0efacd2:~/.zcash$ chmod +x zcashd-block-snapshot-v0.0.3
 ```
 
 Run it!  
 The onlyargument is the height to stop at.
 ```
-zcashd@3ac0a0efacd2:~/.zcash$ ./zcashd-block-snapshot-v0.0.2 -stop-height 1001 -export-dir /export-dir/
+zcashd@3ac0a0efacd2:~/.zcash$ ./zcashd-block-snapshot-v0.0.3 -stop-height 1001 -export-dir /export-dir/
 <--------- SNIP ----------->
 Updated height: 999, stopping at: 1000
 New tip hash: 0000000b70480327694608408728c65c1f1a300bfe705b01baca0f5504092e1b Height: 1000
