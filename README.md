@@ -90,7 +90,7 @@ Adding file: chainstate/MANIFEST-000002
 
 Check the create archive's contents
 ```
-zcashd@3ac0a0efacd2:~/.zcash$ tar zvtf ./zcashd-1000.tar.gz 
+zcashd@3ac0a0efacd2:~/.zcash$ tar zvtf /export-dir/zcashd-1000.tar.gz 
 drwx------ zcashd/zcashd     0 2020-03-26 03:08 ./blocks
 -rw------- zcashd/zcashd 16777216 2020-03-26 03:08 blocks/blk00000.dat
 drwx------ zcashd/zcashd        0 2020-03-26 03:08 blocks/index
